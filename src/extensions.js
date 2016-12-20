@@ -1,18 +1,19 @@
 'use strict'
 
 class MultiFormScopeExtension extends Telegram.BaseScopeExtension {
-	process(root_form, config, callback) {
+	process(root_form, callback, config) {
 		let marked = []
-		let result = {}
+		let answers = {}
+		let ignored = ['$name', '$parent', '$last', 'values']
 
-		let check = (keyboard, answer) => {
+		let checkKeyboard = (keyboard, answer) => {
 			for (let value of keyboard) {
-				if (value == answer || (Array.isArray(value) && check(value, answer)))
+				if (value == answer || (Array.isArray(value) && checkKeyboard(value, answer)))
 					return true
 			}
 		}
 
-		let msg = (text, keyboard) => {
+		let sendMsg = (text, keyboard) => {
 			if (text) {
 				this.sendMessage(text, {
 					disable_web_page_preview: true,
@@ -26,36 +27,66 @@ class MultiFormScopeExtension extends Telegram.BaseScopeExtension {
 			}
 		}
 
-		let getLast = (parent, current_form) => {
-			for (let i in parent) {
-				let form = parent[i]
+		let makeMap = form => {
+			let last
+			for (let key in form) {
+				if (ignored.indexOf(key) == -1) {
+					let field = form[key]
 
-				if (form == current_form && i)
-					return parent[i - 1]
+					if (typeof field == 'object' && !Array.isArray(field)) {
+						makeMap(field)
+
+						field.$name = key
+						field.$parent = form
+						field.$last = last
+						last = field
+					}
+				}
 			}
 		}
 
-		let run = form => {
+		let clearForm = form => {
+			let idx = marked.indexOf(form.$name)
+			if (idx != -1)
+				marked.splice(idx, 1)
+
+			for (let key in form) {
+				if (ignored.indexOf(key) == -1) {
+					let field = form[key]
+
+					if (typeof field == 'object' && !Array.isArray(field))
+						clearForm(field)
+				}
+			}
+		}
+
+		let runForm = form => {
 			let question
 			for (let item in form) {
-				if (marked.indexOf(item) == -1) {
+				if (ignored.indexOf(item) == -1 && marked.indexOf(item) == -1) {
 					question = item
 					break
 				}
 			}
 
-			let parent = getParent(root_form, form)
-			let parent_form = getParent(root_form, parent)
-			let last_form = getLast(parent, form)
+			let parent_form = form.$parent ? form.$parent.$parent : form.$parent
 
 			if (!question) {
 				if (parent_form)
-					run(parent_form)
+					runForm(parent_form)
 				else {
-					// msg('final msg.') // TODO
+					if (config && config.messages)
+						sendMsg(config.messages.completed)
+
+					let result = {}
+					for (let question of marked)
+						result[question] = answers[question]
+
 					callback(result)
 				}
 			} else {
+				let last_form = form[question].$last
+
 				let keyboard = []
 				if (form[question].keyboard)
 					keyboard = form[question].keyboard.slice()
@@ -63,64 +94,68 @@ class MultiFormScopeExtension extends Telegram.BaseScopeExtension {
 				let cancel = false
 				let back = false
 
-				if (config) {
-					let key = []
-					if (config.cancel) {
-						key.push(config.cancel.text)
+				if (config && config.buttons) {
+					let buttons = []
+					if (config.buttons.cancel) {
+						buttons.push(config.buttons.cancel)
 						cancel = true
 					}
 
-					if (config.back && (last_form || parent_form)) {
-						key.push(config.back.text)
+					if (config.buttons.back && (last_form || parent_form)) {
+						buttons.push(config.buttons.back)
 						back = true
 					}
 
-					if (key.length)
-						keyboard.push(key)
+					if (buttons.length)
+						keyboard.push(buttons)
 				}
 
-				msg(form[question].title, keyboard)
+				sendMsg(form[question].title, keyboard)
 				this.waitForRequest.then($ => {
 					let answer = $.message.text
 
-					if (cancel && answer == config.cancel.text) {
-						msg(config.cancel.message)
+					if (cancel && answer == config.buttons.cancel) {
+						if (config.messages)
+							sendMsg(config.messages.canceled)
+
 						callback({})
-					} else if (back && answer == config.back.text) {
-						run(last_form ? last_form : parent_form)
-						//if (parent_form)
-							// TODO: clear marked
-							// TODO: clear result
-							//run(parent_form)
-						//else
-						//	run(form)
+					} else if (back && answer == config.buttons.back) {
+						if (last_form) {
+							clearForm(last_form)
+							runForm(form)
+						} else {
+							clearForm(parent_form)
+							runForm(parent_form)
+						}
 					} else {
 						if (form[question].validator) {
 							if (!form[question].validator($.message)) {
-								msg(form[question].error)
-								return run(form)
+								sendMsg(form[question].error)
+								return runForm(form)
 							}
-						} else if (!check(keyboard, answer)) {
-							msg(form[question].error)
-							return run(form)
+						} else if (!checkKeyboard(keyboard, answer)) {
+							sendMsg(form[question].error)
+							return runForm(form)
 						}
 
 						marked.push(question)
 						if (form[question].values)
-							result[question] = form[question].values[answer]
+							answers[question] = form[question].values[answer]
 						else
-							result[question] = answer
+							answers[question] = answer
 
 						if (form[question][answer])
-							run(form[question][answer])
-						else
-							run(form)
+							runForm(form[question][answer])
+						else {
+							runForm(form)
+						}
 					}
 				})
 			}
 		}
 
-		run(root_form)
+		makeMap(root_form)
+		runForm(root_form)
 	}
 
 	get name() {
@@ -130,23 +165,4 @@ class MultiFormScopeExtension extends Telegram.BaseScopeExtension {
 
 module.exports = {
 	MultiFormScopeExtension
-}
-
-let getParent = (rootObj, childObj) => {
-	//if (rootObj == childObj)
-
-	if (childObj) {
-		for (let i in rootObj) {
-			let key = rootObj[i]
-
-			if (typeof key == 'object' && !Array.isArray(key)) {
-				if (key == childObj)
-					return rootObj
-
-				let res = getParent(key, childObj)
-				if (res)
-					return res
-			}
-		}
-	}
 }
