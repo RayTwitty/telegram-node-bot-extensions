@@ -1,26 +1,16 @@
 # telegram-node-bot-extensions
 Этот небольшой проект представляет собой расширения стандартного функционала для библиотеки [telegram-node-bot](https://github.com/Naltox/telegram-node-bot).
 
-## Get started
-Для того, чтобы начать пользоваться расширениями, необходимо проделать несколько простых действий.
-
-> Поместить константу `Telegram` в глобальное пространство имен.
+## Начало работы
+Для того, чтобы начать пользоваться расширениями, достаточно вызвать следующий код после объявления констант **telegram-node-bot**:
 ```js
-global.Telegram = require('telegram-node-bot')
-```
-> Загрузить модуль с расширениями.
-```js
-const extensions = require('./extensions')
-```
-> И наконец, добавить расширения в область видимости библиотеки.
-```js
-tg.addScopeExtension(extensions.MultiFormScopeExtension)
+require('./extensions')(Telegram, tg)
 ```
 
 ## Multi Forms
 Вы можете создавать сложные формы с высокой степенью вложенности. Используйте `$.runMultiForm` для запуска.
 ```js
-let form = {
+const form = {
 
 }
 
