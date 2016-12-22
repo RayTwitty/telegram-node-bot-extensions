@@ -121,14 +121,12 @@ module.exports = (Telegram, tg) => {
 
 					sendMsg(form[question].title, keyboard)
 					this.waitForRequest.then($ => {
-						let answer = $.message.text
-
-						if (cancel && answer == config.buttons.cancel) {
+						if (cancel && $.message.text == config.buttons.cancel) {
 							if (config.messages)
 								sendMsg(config.messages.canceled)
 
 							callback({})
-						} else if (back && answer == config.buttons.back) {
+						} else if (back && $.message.text == config.buttons.back) {
 							if (last_form) {
 								clearForm(last_form)
 								runForm(form)
@@ -142,22 +140,31 @@ module.exports = (Telegram, tg) => {
 									sendMsg(form[question].error)
 									return runForm(form)
 								}
-							} else if (!checkKeyboard(keyboard, answer)) {
+							} else if (!checkKeyboard(keyboard, $.message.text)) {
 								sendMsg(form[question].error)
 								return runForm(form)
 							}
 
 							marked.push(question)
-							if (form[question].values)
-								answers[question] = form[question].values[answer]
-							else
-								answers[question] = answer
 
-							if (form[question][answer])
-								runForm(form[question][answer])
-							else {
+							if ($.message.text) {
+								if (form[question].values)
+									answers[question] = form[question].values[$.message.text]
+								else
+									answers[question] = $.message.text
+							} else if ($.message.location)
+								answers[question] = $.message.location
+							else if ($.message.photo)
+								answers[question] = $.message.photo
+							else if ($.message.contact)
+								answers[question] = $.message.contact.phoneNumber
+							else
+								throw new Error('Unsupported answer type!')
+
+							if (form[question][$.message.text])
+								runForm(form[question][$.message.text])
+							else
 								runForm(form)
-							}
 						}
 					})
 				}
