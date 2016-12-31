@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/RayTwitty/telegram-node-bot-extensions/issues"
   },
-  "homepage": "https://github.com/RayTwitty/telegram-node-bot-extensions#readme"
+  "homepage": "https://github.com/RayTwitty/telegram-node-bot-extensions#readme",
+  "dependencies": {
+    "js-standard-library-extensions": "latest"
+  }
 }
