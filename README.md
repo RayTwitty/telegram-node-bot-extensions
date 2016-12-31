@@ -1,37 +1,41 @@
 # telegram-node-bot-extensions
 Этот небольшой проект представляет собой расширения стандартного функционала для библиотеки [telegram-node-bot](https://github.com/Naltox/telegram-node-bot).
-## Начало работы
-Для того, чтобы начать пользоваться расширениями, достаточно вызвать следующий код после объявления констант **telegram-node-bot**:
+## Установка
+Добавление пакета в проект через [npm](https://www.npmjs.com):
+```bash
+npm install --save telegram-node-bot-extensions
+```
+Инициализация модуля:
 ```js
-require('./extensions')(Telegram, tg)
+require('telegram-node-bot-extensions')(Telegram, tg)
 ```
 ## Multi Forms
 Вы можете создавать сложные формы с высокой степенью вложенности. Используйте `$.runMultiForm` для запуска.
 ```js
 const form = {
 	category: {
-		title: 'Выбери категорию',
+		question: 'Выбери категорию',
 		error: 'Ты неправильно ввел категорию!',
 		keyboard: [['Курьер', 'Ремонт']],
 		'Курьер': {
 			subcategory: {
-				title: 'Выбери подкатегорию',
+				question: 'Выбери подкатегорию',
 				error: 'Ты неправильно ввел подкатегорию!',
 				keyboard: [['Пеший курьер', 'Доставка продуктов']]
 			},
 			size: {
-				title: 'Установить размер посылки?',
+				question: 'Установить размер посылки?',
 				keyboard: [['Да', 'Нет']],
 				values: {'Да': true, 'Нет': false},
 				'Да': {
 					length: {
-						title: 'Задай длину посылки (см)',
+						question: 'Задай длину посылки (см)',
 						validator: (message) => {
 							return Number.isInteger(parseInt(message.text))
 						}
 					},
 					width: {
-						title: 'Задай ширину посылки (см)',
+						question: 'Задай ширину посылки (см)',
 						validator: (message) => {
 							return Number.isInteger(parseInt(message.text))
 						}
@@ -39,7 +43,7 @@ const form = {
 				}
 			},
 			weight: {
-				title: 'Задай вес посылки',
+				question: 'Задай вес посылки',
 				validator: (message) => {
 					return Number.isInteger(parseInt(message.text))
 				}
@@ -47,13 +51,13 @@ const form = {
 		},
 		'Ремонт': {
 			subcategory: {
-				title: 'Выбери подкатегорию',
+				question: 'Выбери подкатегорию',
 				keyboard: [['Ремонт мебели', 'Отделочные работы']]
 			}
 		}
 	},
 	contacts: {
-		title: 'Оставить контакты?',
+		question: 'Оставить контакты?',
 		keyboard: [['Да', 'Нет']]
 	}
 }
@@ -85,14 +89,14 @@ $.runMultiForm(form, result => {
 В случае, если ответ не прошел проверку, может быть выведено сообщение об ошибке, которое устанавливается полем `error`.
 ```js
 ...
-	title: 'Выбери подкатегорию',
+	question: 'Выбери подкатегорию',
 	error: 'Ты неправильно ввел подкатегорию!',
 ...
 ```
 При каждом правильном ответе на вопрос производится поиск дочерней формы, объект которой называется именем этого ответа.
 ```js
 ...
-	title: 'Выбери категорию',
+	question: 'Выбери категорию',
 	error: 'Ты неправильно ввел категорию!',
 	keyboard: [['Курьер', 'Ремонт']],
 	'Курьер': {...},
@@ -102,7 +106,7 @@ $.runMultiForm(form, result => {
 Есть возможность переопределения текстовых значений, которые будут записаны в результат. Для этого служит поле `values`.
 ```js
 ...
-	title: 'Установить размер посылки?',
+	question: 'Установить размер посылки?',
 	keyboard: [['Да', 'Нет']],
 	values: {'Да': true, 'Нет': false},
 ...
