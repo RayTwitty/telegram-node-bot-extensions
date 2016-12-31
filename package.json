@@ -1,0 +1,25 @@
+{
+  "name": "telegram-node-bot-extensions",
+  "version": "1.0.0",
+  "description": "extensions of telegram-node-bot module",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://RayTwitty@github.com/RayTwitty/telegram-node-bot-extensions.git"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "API",
+    "extensions"
+  ],
+  "author": "Evgeniy Litvinov <raytwitty@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RayTwitty/telegram-node-bot-extensions/issues"
+  },
+  "homepage": "https://github.com/RayTwitty/telegram-node-bot-extensions#readme"
+}
