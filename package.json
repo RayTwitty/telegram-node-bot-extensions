@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/RayTwitty/telegram-node-bot-extensions#readme",
   "dependencies": {
+    "telegram-node-bot": "latest",
     "js-standard-library-extensions": "latest"
   }
 }
