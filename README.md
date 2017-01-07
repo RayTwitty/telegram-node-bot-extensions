@@ -31,23 +31,17 @@ const form = {
 				'Да': {
 					length: {
 						question: 'Задай длину посылки (см)',
-						validator: (message) => {
-							return Number.isInteger(parseInt(message.text))
-						}
+						validator: message => {return Number.isInteger(parseInt(message.text))}
 					},
 					width: {
 						question: 'Задай ширину посылки (см)',
-						validator: (message) => {
-							return Number.isInteger(parseInt(message.text))
-						}
+						validator: message => {return Number.isInteger(parseInt(message.text))}
 					}
 				}
 			},
 			weight: {
 				question: 'Задай вес посылки',
-				validator: (message) => {
-					return Number.isInteger(parseInt(message.text))
-				}
+				validator: message => {return Number.isInteger(parseInt(message.text))}
 			}
 		},
 		'Ремонт': {
@@ -77,17 +71,13 @@ const config = {
 	parse_mode: 'HTML'
 }
 
-$.runMultiForm(form, result => {
-	console.log(result)
-}, config)
+$.runMultiForm(form, result => console.log(result), config)
 ```
 ### Структура формы
 Каждая форма состоит из вопросов, на которые должен ответить пользователь. Каждый вопрос должен включать в себя текст вопроса и ответ на него. В качестве проверки ответа выступает функция-валидатор, возвращающая логическое значение, либо текст из кнопок клавиатуры. Если указано и то и другое, функция-валидатор будет иметь приоритет.
 ```js
 ...
-	validator: (message) => {
-		return Number.isInteger(parseInt(message.text))
-	}
+	validator: message => {return Number.isInteger(parseInt(message.text))}
 ...
 ```
 В случае, если ответ не прошел проверку, может быть выведено сообщение об ошибке, которое устанавливается полем `error`.
@@ -205,10 +195,10 @@ $.runInlineTabsMenu(tabs, config)
 	]
 ...
 ```
-Меню описывает набор строк и кнопок в них. Каждая кнопка должна содержать текст (поле `text`) и функцию-колбек (поле `callback`), которая будет вызвана при нажатии на эту кнопку.
+Меню описывает набор строк и кнопок в них. Каждая кнопка должна содержать текст (поле `text`) и функцию-колбек (поле `callback`), который будет вызван при нажатии на эту кнопку.
 ```js
 ...
-	{text: 'Один', callback: callbackQuery => console.log('one')}
+	{text: 'Один', callback: callbackQuery => console.log('one')},
 ...
 ```
 ### Настройка меню
