@@ -138,6 +138,92 @@ const config = {
 
 Важно отметить, что конфиг совершенно опционален. Все функции, которыми он управляет по умолчанию выключены. Поэтому, если вы не хотите, допустим, использовать кнопку "Назад", просто не указывайте ее в конфиге.
 
+## Инлайновое меню с вкладками
+Для создания такого меню можно воспользоваться методом `$.runInlineTabsMenu`.
+```js
+const tabs = [
+	{
+		message: 'Первая вкладка',
+		menu: [
+			[
+				{text: 'Один', callback: callbackQuery => console.log('one')},
+				{text: 'Два', callback: callbackQuery => console.log('two')}
+			],
+			[
+				{text: 'Три', callback: callbackQuery => console.log('three')}
+			]
+		]
+	},
+	{
+		message: 'Вторая вкладка',
+		menu: [
+			[
+				{text: 'Четыре', callback: callbackQuery => console.log('four')}
+			],
+			[
+				{text: 'Пять', callback: callbackQuery => console.log('five')}
+			]
+		]
+	},
+	{
+		message: 'Третья вкладка'
+	},
+	{
+		message: 'Четвертая вкладка'
+	},
+	{
+		message: 'Пятая вкладка'
+	},
+	{
+		message: 'Шестая вкладка'
+	}
+]
+
+const config = {
+	title: '<b>Заголовок</b>',
+	max_buttons: 5,
+	disable_notification: true,
+	disable_web_page_preview: true,
+	parse_mode: 'HTML'
+}
+
+$.runInlineTabsMenu(tabs, config)
+```
+### Структура меню
+Массив вкладок содержит объекты, которые описывают каждую отдельную вкладку. В свою очередь, вкладка должна содержать текст (поле `message`) и может содержать меню с инлайновыми кнопками (поле `menu`).
+```js
+...
+	message: 'Первая вкладка',
+	menu: [
+		[
+			{text: 'Один', callback: callbackQuery => console.log('one')},
+			{text: 'Два', callback: callbackQuery => console.log('two')}
+		],
+		[
+			{text: 'Три', callback: callbackQuery => console.log('three')}
+		]
+	]
+...
+```
+Меню описывает набор строк и кнопок в них. Каждая кнопка должна содержать текст (поле `text`) и функцию-колбек (поле `callback`), которая будет вызвана при нажатии на эту кнопку.
+```js
+...
+	{text: 'Один', callback: callbackQuery => console.log('one')}
+...
+```
+### Настройка меню
+В конфиге, который передается вторым необязательным параметром в конструктор, можно задать использование заголовка (поле `title`), который будет добавляться перед текстом вкладки. Поле `max_buttons` устанавливает максимальное количество кнопок для навигации по вкладкам (по умолчанию **5**). Количество кнопок должно быть нечетным.
+```js
+const config = {
+	title: '<b>Заголовок</b>',
+	max_buttons: 5,
+	disable_notification: true,
+	disable_web_page_preview: true,
+	parse_mode: 'HTML'
+}
+```
+Также можно установить значения для стандартных параметров: `disable_notification`, `disable_web_page_preview` и `parse_mode`.
+
 ## Инлайновые клавиатуры
 Появился простой механизм для создания инлайновых клавиатур:
 ```js
