@@ -1,6 +1,6 @@
 {
   "name": "telegram-node-bot-extensions",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "extensions of telegram-node-bot module",
   "main": "lib/index.js",
   "scripts": {
